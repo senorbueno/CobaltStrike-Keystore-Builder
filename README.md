@@ -2,8 +2,10 @@
 Generates Java keystores using signed SSL certificates to be used by CobaltStrike.
 
 # Thanks to
+```
 @Killswtch-GUI - for providing the concept
 ThreatExpress - for providing a C2 profile template
+```
 
 # Overview
 This script concept was taken from HTTPsC2DoneRight by @Killswitch-GUI, but widely expanded to be much more intuitive and functional.
