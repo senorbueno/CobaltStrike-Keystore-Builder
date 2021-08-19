@@ -322,7 +322,6 @@ echo -ne "${YELLOW}[!] Please choose whether to build SSL certs with LetsEncrypt
                     exit 1
                   fi
                 fi
-
                 cd /etc/letsencrypt/live/$domain
                 echo
                 echo -e "${BLUE}[*] Building PKCS12 .p12 cert."
@@ -335,7 +334,6 @@ echo -ne "${YELLOW}[!] Please choose whether to build SSL certs with LetsEncrypt
                   echo -e "${RED} [-] Error building cert. Check output."
                   exit 1
                 fi
-
                 echo -e "${BLUE}[*] Building Java keystore via keytool."
                 echo -e -n "${NC}"
                 if keytool -importkeystore -deststorepass $password -destkeypass $password -destkeystore $domainStore -srckeystore $domainPkcs -srcstoretype PKCS12 -srcstorepass $password -alias $domain
@@ -349,7 +347,6 @@ echo -ne "${YELLOW}[!] Please choose whether to build SSL certs with LetsEncrypt
                   rm $domainPkcs
                   exit 1
                 fi
-
                 if [ ! -d $cobaltStrikeProfilePath ]
                 then
                   echo -e "${BLUE}[*] Creating directory $cobaltStrikeProfilePath"
@@ -377,32 +374,31 @@ echo -ne "${YELLOW}[!] Please choose whether to build SSL certs with LetsEncrypt
                   echo -e "${BLUE}[*] Cloning jQuery profile from ThreatExpress"
                   echo
                   echo -e -n "${NC}"
-                  if wget https://raw.githubusercontent.com/threatexpress/malleable-c2/master/jquery-c2.4.3.profile --no-check-certificate -O jquery.$domain.profile
-                    then
-                      echo
-                      echo -e "${GREEN}[+] jQuery profile cloned."
-                      sed -i "s~^.*#set keystore.*~\tset keystore \"$cobaltStrikeProfilePath/$domainStore\";~g" jquery.$domain.profile
-                  sed -i "s/^.*#set password.*/\tset password \"$password\";/g" jquery.$domain.profile
-                  sed -i 's/^.*set C   \"US\";/\t#set C   \"US\";/g' jquery.$domain.profile
-                              sed -i 's/^.*set CN  \"jquery.com\";/\t#set CN  \"jquery.com\";/g' jquery.$domain.profile
-                              sed -i 's/^.*set O   \"jQuery\";/\t#set O   \"jQuery\";/g' jquery.$domain.profile
-                              sed -i 's/^.*set OU  \"Certificate Authority\";/\t#set OU  \"Certificate Authority\";/g' jquery.$domain.profile
-                              sed -i 's/^.*set validity \"365\";/\t#set validity \"365\";/g' jquery.$domain.profile
-                      echo -e "${GREEN}[+] Added java keystore / password to jQuery profile."
-                  echo
-                      echo -e "${BLUE}[*] Verifying profile with c2lint"
-                      cd $cobaltStrike
-                      ./c2lint $cobaltStrikeProfilePath/jquery.$domain.profile
-                      echo
-                  echo
-                      echo -e "${GREEN}[+] Finished running checks on profile. Look for errors or warnings."
-                  echo -e "${YELLOW}[!] It is also good practice to review the generated profile and tweak settings to make C2 comms more unqiue and less detectable."
-                  echo
-                      echo -e "${GREEN}[+] C2 profile created:"
-                  echo -e "${NC} $cobaltStrikeProfilePath/jquery.$domain.profile"
+                  if wget https://raw.githubusercontent.com/threatexpress/malleable-c2/master/jquery-c2.4.3.profile --no-check-certificate -O jquery.$domain.profile; then
+                     echo
+                     echo -e "${GREEN}[+] jQuery profile cloned."
+                     sed -i "s~^.*#set keystore.*~\tset keystore \"$cobaltStrikeProfilePath/$domainStore\";~g" jquery.$domain.profile
+                     sed -i "s/^.*#set password.*/\tset password \"$password\";/g" jquery.$domain.profile
+                     sed -i 's/^.*set C   \"US\";/\t#set C   \"US\";/g' jquery.$domain.profile
+                     sed -i 's/^.*set CN  \"jquery.com\";/\t#set CN  \"jquery.com\";/g' jquery.$domain.profile
+                     sed -i 's/^.*set O   \"jQuery\";/\t#set O   \"jQuery\";/g' jquery.$domain.profile
+                     sed -i 's/^.*set OU  \"Certificate Authority\";/\t#set OU  \"Certificate Authority\";/g' jquery.$domain.profile
+                     sed -i 's/^.*set validity \"365\";/\t#set validity \"365\";/g' jquery.$domain.profile
+                     echo -e "${GREEN}[+] Added java keystore / password to jQuery profile."
+                     echo
+                     echo -e "${BLUE}[*] Verifying profile with c2lint"
+                     cd $cobaltStrike
+                     ./c2lint $cobaltStrikeProfilePath/jquery.$domain.profile
+                     echo
+                     echo
+                     echo -e "${GREEN}[+] Finished running checks on profile. Look for errors or warnings."
+                     echo -e "${YELLOW}[!] It is also good practice to review the generated profile and tweak settings to make C2 comms more unqiue and less detectable."
+                     echo
+                     echo -e "${GREEN}[+] C2 profile created:"
+                     echo -e "${NC} $cobaltStrikeProfilePath/jquery.$domain.profile"
                   else
-                  echo -e "${RED}[-] Could not clone profile. Are you connected to the web?"
-                fi
+                     echo -e "${RED}[-] Could not clone profile. Are you connected to the web?"
+                  fi
                 else
                   echo
                   echo -e "${BLUE}OK"
@@ -483,24 +479,20 @@ echo -ne "${YELLOW}[!] Please choose whether to build SSL certs with LetsEncrypt
                   read -e -p "[y]/n: " installjavainput
                   installjavainput=${installjavainput:-y}
                   installjava=$(echo "$installjavainput" | awk '{print tolower($0)}')
-                  if [ $installjava == "y" ]
-                      then
-                echo
-                echo -e "${BLUE}[*] Installing java"
-                echo -e "${NC}"
-                if apt-get update && apt-get -y install default-jdk
-                  then
-                  echo -n
+                  if [ $installjava == "y" ]; then
+                     echo
+                     echo -e "${BLUE}[*] Installing java"
+                     echo -e "${NC}"
+                     if apt-get update && apt-get -y install default-jdk; then
+                        echo -n
+                     else
+                        echo -e "${RED}[-] Error installing java. Check output or download/install manually and re-run script."
+                        exit 1
+                     fi
                   else
-                  echo -e "${RED}[-] Error installing java. Check output or download/install manually and re-run script."
-                  exit 1
-                fi
-                else
-                echo -e "{$BLUE}[*] OK. Install with \"apt update && apt install default-jdk\""
-                exit 1
+                     echo -e "{$BLUE}[*] OK. Install with \"apt update && apt install default-jdk\""
+                     exit 1
                   fi
-                  echo
-                  exit 1
                 fi
                 if [ $(which openssl) ]; then
                   echo -e "${GREEN}  [+] OpenSSL is installed."
@@ -552,7 +544,6 @@ echo -ne "${YELLOW}[!] Please choose whether to build SSL certs with LetsEncrypt
                    fi
                 done
                 echo
-
                 echo -e "${BLUE}Enter full path to your certificate chain (/path/to/chain.pem)"
                 while true; do
                    echo -e -n "${NC}"
@@ -565,7 +556,6 @@ echo -ne "${YELLOW}[!] Please choose whether to build SSL certs with LetsEncrypt
                    fi
                 done
                 echo
-
                 echo -e "${BLUE}Enter full path to your cetificate private key file (/path/to/key.pem)"
                 while true; do
                    echo -e -n "${NC}"
@@ -586,27 +576,25 @@ echo -ne "${YELLOW}[!] Please choose whether to build SSL certs with LetsEncrypt
 
               func_build_pkcs(){
                 echo -e "${BLUE}[*] Building PKCS12 .p12 cert."
-                if openssl pkcs12 -export -in $fullchain -inkey $privkey -out $domainPkcs -name $domain -passout pass:$password
-                  then
-                  echo -e "${GREEN}  [+] Built $domainPkcs PKCS12 cert."
-                  echo
+                if openssl pkcs12 -export -in $fullchain -inkey $privkey -out $domainPkcs -name $domain -passout pass:$password; then
+                   echo -e "${GREEN}  [+] Built $domainPkcs PKCS12 cert."
+                   echo
                 else
-                echo
-                echo -e "${RED} [-] Error building cert. Check output."
-                exit 1
+                   echo
+                   echo -e "${RED} [-] Error building cert. Check output."
+                   exit 1
                 fi
                 echo -e "${BLUE}[*] Building Java keystore via keytool."
                 echo -e -n "${NC}"
-                if keytool -importkeystore -deststorepass $password -destkeypass $password -destkeystore $domainStore -srckeystore $domainPkcs -srcstoretype PKCS12 -srcstorepass $password -alias $domain
-                  then
-                rm $domainPkcs
-                  echo -e "${GREEN}  [+] Java keystore $domainStore built."
-                  echo
+                if keytool -importkeystore -deststorepass $password -destkeypass $password -destkeystore $domainStore -srckeystore $domainPkcs -srcstoretype PKCS12 -srcstorepass $password -alias $domain; then
+                   rm $domainPkcs
+                   echo -e "${GREEN}  [+] Java keystore $domainStore built."
+                   echo
                 else
-                echo
-                echo -e "${RED}[-] Error building Java keystore. Check output."
-                rm $domainPkcs
-                exit 1
+                   echo
+                   echo -e "${RED}[-] Error building Java keystore. Check output."
+                   rm $domainPkcs
+                   exit 1
                 fi
                 if [ ! -d $cobaltStrikeProfilePath ]
                 then
@@ -628,39 +616,37 @@ echo -ne "${YELLOW}[!] Please choose whether to build SSL certs with LetsEncrypt
                 read -e -p "[y]/n: " createprofileinput
                 createprofileinput=${createprofileinput:-y}
                 createprofile=$(echo "$createprofileinput" | awk '{print tolower($0)}')
-                if [ $createprofile == "y" ]
-                  then
+                if [ $createprofile == "y" ]; then
                   echo
                   cd $cobaltStrikeProfilePath
                   echo -e "${BLUE}[*] Cloning jQuery profile from ThreatExpress"
                   echo
                   echo -e -n "${NC}"
-                  if wget https://raw.githubusercontent.com/threatexpress/malleable-c2/master/jquery-c2.4.3.profile --no-check-certificate -O jquery.$domain.profile
-                    then
-                      echo
-                      echo -e "${GREEN}[+] jQuery profile cloned."
-                      sed -i "s~^.*#set keystore.*~\tset keystore \"$cobaltStrikeProfilePath/$domainStore\";~g" jquery.$domain.profile
-                  sed -i "s/^.*#set password.*/\tset password \"$password\";/g" jquery.$domain.profile
-                  sed -i 's/^.*set C   \"US\";/\t#set C   \"US\";/g' jquery.$domain.profile
-                              sed -i 's/^.*set CN  \"jquery.com\";/\t#set CN  \"jquery.com\";/g' jquery.$domain.profile
-                              sed -i 's/^.*set O   \"jQuery\";/\t#set O   \"jQuery\";/g' jquery.$domain.profile
-                              sed -i 's/^.*set OU  \"Certificate Authority\";/\t#set OU  \"Certificate Authority\";/g' jquery.$domain.profile
-                              sed -i 's/^.*set validity \"365\";/\t#set validity \"365\";/g' jquery.$domain.profile
-                      echo -e "${GREEN}[+] Added java keystore / password to jQuery profile."
-                  echo
-                      echo -e "${BLUE}[*] Verifying profile with c2lint"
-                      cd $cobaltStrike
-                      ./c2lint $cobaltStrikeProfilePath/jquery.$domain.profile
-                      echo
-                  echo
-                      echo -e "${GREEN}[+] Finished running checks on profile. Look for errors or warnings."
-                  echo -e "${YELLOW}[!] It is also good practice to review the generated profile and tweak settings to make C2 comms more unqiue and less detectable."
-                  echo
-                      echo -e "${GREEN}[+] C2 profile created:"
-                  echo -e "${NC} $cobaltStrikeProfilePath/jquery.$domain.profile"
+                  if wget https://raw.githubusercontent.com/threatexpress/malleable-c2/master/jquery-c2.4.3.profile --no-check-certificate -O jquery.$domain.profile; then
+                     echo
+                     echo -e "${GREEN}[+] jQuery profile cloned."
+                     sed -i "s~^.*#set keystore.*~\tset keystore \"$cobaltStrikeProfilePath/$domainStore\";~g" jquery.$domain.profile
+                     sed -i "s/^.*#set password.*/\tset password \"$password\";/g" jquery.$domain.profile
+                     sed -i 's/^.*set C   \"US\";/\t#set C   \"US\";/g' jquery.$domain.profile
+                     sed -i 's/^.*set CN  \"jquery.com\";/\t#set CN  \"jquery.com\";/g' jquery.$domain.profile
+                     sed -i 's/^.*set O   \"jQuery\";/\t#set O   \"jQuery\";/g' jquery.$domain.profile
+                     sed -i 's/^.*set OU  \"Certificate Authority\";/\t#set OU  \"Certificate Authority\";/g' jquery.$domain.profile
+                     sed -i 's/^.*set validity \"365\";/\t#set validity \"365\";/g' jquery.$domain.profile
+                     echo -e "${GREEN}[+] Added java keystore / password to jQuery profile."
+                     echo
+                     echo -e "${BLUE}[*] Verifying profile with c2lint"
+                     cd $cobaltStrike
+                     ./c2lint $cobaltStrikeProfilePath/jquery.$domain.profile
+                     echo
+                     echo
+                     echo -e "${GREEN}[+] Finished running checks on profile. Look for errors or warnings."
+                     echo -e "${YELLOW}[!] It is also good practice to review the generated profile and tweak settings to make C2 comms more unqiue and less detectable."
+                     echo
+                     echo -e "${GREEN}[+] C2 profile created:"
+                     echo -e "${NC} $cobaltStrikeProfilePath/jquery.$domain.profile"
                   else
-                  echo -e "${RED}[-] Could not clone profile. Are you connected to the web?"
-                fi
+                     echo -e "${RED}[-] Could not clone profile. Are you connected to the web?"
+                  fi
                 else
                   echo
                   echo -e "${BLUE}OK"
